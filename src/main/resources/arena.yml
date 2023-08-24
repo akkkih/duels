@@ -1,0 +1,10 @@
+world: "arena"
+spawn:
+  player-one:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  player-two:
+    x: 0.0
+    y: 0.0
+    z: 0.0

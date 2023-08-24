@@ -1,0 +1,4 @@
+main: com.akkih.duels.Duels
+name: "Duels"
+version: "1.0"
+api-version: "1.19"

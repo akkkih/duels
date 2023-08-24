@@ -1,0 +1,49 @@
+# Available kits:
+# - Warrior
+# - Archer
+# - Assassin
+
+default-kit: "warrior"
+kits:
+  warrior:
+    armor-content:
+      helmet:
+        material: "LEATHER_HELMET"
+        amount: 1
+      chestplate:
+        material: "LEATHER_CHESTPLATE"
+        amount: 1
+    inventory-content:
+      0:
+        material: "WOODEN_SWORD"
+        amount: 1
+      1:
+        material: "GOLDEN_APPLE"
+        amount: 2
+  archer:
+    armor-content:
+      helmet:
+        material: "CHAIN_HELMET"
+        amount: 1
+      chestplate:
+        material: "GOLDEN_CHESTPLATE"
+        amount: 1
+    inventory-content:
+      0:
+        material: "BOW"
+        amount: 1
+      1:
+        material: "ARROW"
+        amount: 32
+  assassin:
+    armor-content:
+      helmet:
+        material: "IRON_HELMET"
+        amount: 1
+      boots:
+        material: "IRON_BOOTS"
+        amount: 1
+    inventory-content:
+      0:
+        material: "STONE_SWORD"
+        amount: 1
