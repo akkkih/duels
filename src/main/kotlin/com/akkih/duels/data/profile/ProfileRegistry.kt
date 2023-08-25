@@ -2,6 +2,8 @@ package com.akkih.duels.data.profile
 
 import com.akkih.duels.data.Database
 import com.mongodb.client.model.Filters.*
+import gg.flyte.twilight.data.service.NameCacheService
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.UUID
 
@@ -11,6 +13,10 @@ class ProfileRegistry {
 
     fun findByUUID(uuid: UUID): Profile? {
         return profiles[uuid]
+    }
+
+    fun findByName(name: String): Profile? {
+        return Bukkit.getOfflinePlayer(name).player?.let { findByPlayer(it) }
     }
 
     fun findByPlayer(player: Player): Profile {

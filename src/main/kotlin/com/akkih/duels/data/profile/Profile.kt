@@ -4,6 +4,7 @@ import com.akkih.duels.data.Database
 import com.mongodb.client.model.Filters.*
 import com.mongodb.client.model.ReplaceOptions
 import org.bson.Document
+import org.bukkit.Bukkit
 import java.util.UUID
 
 data class Profile(
@@ -14,6 +15,8 @@ data class Profile(
     val deaths: Int,
     val winstreak: Int
 ) {
+    val player = Bukkit.getOfflinePlayer(uuid).player
+
     fun save() {
         val document = Database.PROFILES
             .find(eq("uuid", uuid.toString()))
