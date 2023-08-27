@@ -1,19 +1,19 @@
 package com.akkih.duels.data.profile
 
 import com.akkih.duels.data.Database
-import com.mongodb.client.model.Filters.*
+import com.mongodb.client.model.Filters.eq
 import com.mongodb.client.model.ReplaceOptions
 import org.bson.Document
 import org.bukkit.Bukkit
-import java.util.UUID
+import java.util.*
 
 data class Profile(
     val uuid: UUID,
-    val wins: Int,
-    val losses: Int,
-    val kills: Int,
-    val deaths: Int,
-    val winstreak: Int
+    var wins: Int,
+    var losses: Int,
+    var kills: Int,
+    var deaths: Int,
+    var winstreak: Int,
 ) {
     val player = Bukkit.getOfflinePlayer(uuid).player
 
@@ -32,7 +32,8 @@ data class Profile(
         Database.PROFILES.replaceOne(
             eq("uuid", uuid.toString()),
             document,
-            ReplaceOptions().upsert(true))
+            ReplaceOptions().upsert(true)
+        )
     }
 
     companion object {
@@ -47,7 +48,8 @@ data class Profile(
                 document.getInteger("losses"),
                 document.getInteger("kills"),
                 document.getInteger("deaths"),
-                document.getInteger("winstreak"))
+                document.getInteger("winstreak")
+            )
         }
     }
 }

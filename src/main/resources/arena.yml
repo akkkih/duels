@@ -1,10 +1,21 @@
-world: "arena"
-spawn:
+arena:
+  world: "duels"
   player-one:
-    x: 0.0
-    y: 0.0
-    z: 0.0
+    x: -49.5
+    y: -60.0
+    z: 24.5
+    yaw: -180.0
+    pitch: 0.0
   player-two:
-    x: 0.0
-    y: 0.0
-    z: 0.0
+    x: -49.5
+    y: -60.0
+    z: -25.5
+    yaw: 0.0
+    pitch: 0.0
+lobby:
+  world: "world"
+  x: 0.0
+  y: 257.0
+  z: 0.0
+  yaw: 0.0
+  pitch: 0.0

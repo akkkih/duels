@@ -1,14 +1,23 @@
 package com.akkih.duels.data.profile
 
 import com.akkih.duels.data.Database
-import com.mongodb.client.model.Filters.*
-import gg.flyte.twilight.data.service.NameCacheService
+import com.akkih.duels.data.Kit
+import com.akkih.duels.data.Yaml
+import com.google.common.cache.Cache
+import com.google.common.cache.CacheBuilder
+import com.mongodb.client.model.Filters.eq
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import java.util.UUID
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 class ProfileRegistry {
     private val profiles: MutableMap<UUID, Profile> = mutableMapOf()
+    val invites: Cache<Pair<UUID, UUID>, Kit> = CacheBuilder.newBuilder()
+        .expireAfterWrite(5, TimeUnit.MINUTES)
+        .build()
     private val collection = Database.PROFILES
 
     fun findByUUID(uuid: UUID): Profile? {
@@ -24,6 +33,8 @@ class ProfileRegistry {
     }
 
     fun handleJoin(player: Player): Profile {
+        player.teleport(Yaml.Arena.LOBBY)
+
         return collection.find(eq("uuid", player.uniqueId.toString())).first()?.run {
             Profile.from(player.uniqueId)
         } ?: create(player)
@@ -33,6 +44,28 @@ class ProfileRegistry {
         findByPlayer(player).apply {
             save()
             profiles.remove(player.uniqueId, this)
+        }
+    }
+
+    fun handleKill(player: Player) {
+        player.sendMessage(Component.text("You've won!", NamedTextColor.GREEN))
+        player.teleport(Yaml.Arena.LOBBY)
+
+        findByPlayer(player).apply {
+            kills += 1
+            winstreak += 1
+            save()
+        }
+    }
+
+    fun handleDeath(player: Player) {
+        player.sendMessage(Component.text("You've lost. :(", NamedTextColor.RED))
+        player.teleport(Yaml.Arena.LOBBY)
+
+        findByPlayer(player).apply {
+            deaths += 1
+            winstreak = 0
+            save()
         }
     }
 

@@ -1,5 +1,6 @@
 package com.akkih.duels
 
+import com.akkih.duels.command.DuelCommand
 import com.akkih.duels.command.StatsCommand
 import com.akkih.duels.data.Yaml
 import com.akkih.duels.data.profile.ProfileListener
@@ -27,7 +28,7 @@ class Duels : JavaPlugin() {
         val profileRegistry = ProfileRegistry()
         val commandHandler = BukkitCommandHandler.create(this)
 
-        commandHandler.register(StatsCommand(profileRegistry))
+        commandHandler.register(StatsCommand(profileRegistry), DuelCommand(profileRegistry))
         commandHandler.registerBrigadier()
 
         Bukkit.getPluginManager().registerEvents(ProfileListener(profileRegistry), this)
