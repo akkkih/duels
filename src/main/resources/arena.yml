@@ -14,8 +14,8 @@ arena:
     pitch: 0.0
 lobby:
   world: "world"
-  x: 0.0
+  x: 0.5
   y: 257.0
-  z: 0.0
+  z: 0.5
   yaw: 0.0
   pitch: 0.0

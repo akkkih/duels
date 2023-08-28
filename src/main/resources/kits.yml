@@ -7,12 +7,8 @@ default-kit: "warrior"
 kits:
   warrior:
     armor-content:
-      helmet:
-        material: "LEATHER_HELMET"
-        amount: 1
-      chestplate:
-        material: "LEATHER_CHESTPLATE"
-        amount: 1
+      helmet: "LEATHER_HELMET"
+      chestplate: "LEATHER_CHESTPLATE"
     inventory-content:
       0:
         material: "WOODEN_SWORD"
@@ -22,12 +18,8 @@ kits:
         amount: 2
   archer:
     armor-content:
-      helmet:
-        material: "CHAIN_HELMET"
-        amount: 1
-      chestplate:
-        material: "GOLDEN_CHESTPLATE"
-        amount: 1
+      helmet: "CHAIN_HELMET"
+      chestplate: "GOLDEN_CHESTPLATE"
     inventory-content:
       0:
         material: "BOW"
@@ -37,12 +29,8 @@ kits:
         amount: 32
   assassin:
     armor-content:
-      helmet:
-        material: "IRON_HELMET"
-        amount: 1
-      boots:
-        material: "IRON_BOOTS"
-        amount: 1
+      helmet: "IRON_HELMET"
+      boots: "IRON_BOOTS"
     inventory-content:
       0:
         material: "STONE_SWORD"

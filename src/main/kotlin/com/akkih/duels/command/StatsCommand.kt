@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 
 class StatsCommand(private val profileRegistry: ProfileRegistry) {
     @Command("stats")
-    @Cooldown(value = 5, unit = TimeUnit.SECONDS)
+    @Cooldown(value = 3, unit = TimeUnit.SECONDS)
     fun onViewStats(player: Player, @Named("name") @Optional target: String?) {
         val profile = profileRegistry.findByName(target ?: player.name) ?: run {
             player.sendMessage(Component.text("Couldn't find this player!", NamedTextColor.RED))
@@ -25,7 +25,7 @@ class StatsCommand(private val profileRegistry: ProfileRegistry) {
             .append(Component.newline())
             .append(
                 Component.text(
-                    (profile.player?.name ?: "Someone").plus("'s Stats"),
+                    "${profile.player?.name}'s Stats",
                     NamedTextColor.GOLD,
                     TextDecoration.BOLD
                 )
