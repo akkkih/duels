@@ -1,7 +1,7 @@
 package com.akkih.duels.util
 
-import com.akkih.duels.data.Kit
 import com.akkih.duels.data.Config
+import com.akkih.duels.data.Kit
 import org.bukkit.entity.Player
 
 fun Player.setKit(config: Config, kit: Kit) {

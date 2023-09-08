@@ -1,84 +1,47 @@
 package com.akkih.duels.command
 
-import com.akkih.duels.data.Kit
+import com.akkih.duels.Duels
 import com.akkih.duels.data.Config
-import com.akkih.duels.data.profile.ProfileRegistry
-import com.akkih.duels.util.setKit
+import com.akkih.duels.data.Kit
+import com.akkih.duels.data.duel.Duel
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.event.ClickEvent
-import net.kyori.adventure.text.event.HoverEvent
-import net.kyori.adventure.text.format.NamedTextColor.*
-import net.kyori.adventure.text.format.TextDecoration
-import net.kyori.adventure.title.Title
-import net.kyori.adventure.title.Title.Times
-import org.bukkit.GameMode
+import net.kyori.adventure.text.format.NamedTextColor.RED
 import org.bukkit.entity.Player
 import revxrsal.commands.annotation.*
-import java.time.Duration
 import java.util.concurrent.TimeUnit
 
-class DuelCommand(private val profileRegistry: ProfileRegistry, private val config: Config) {
+class DuelCommand(private val config: Config) {
     @Command("duel")
     @Cooldown(value = 1, unit = TimeUnit.MINUTES)
-    fun onDuel(player: Player, @Named("name") @NotSender target: Player, @Named("kit") @Optional kit: Kit?) {
-        if (!target.isOnline) {
+    fun onDuel(player: Player, @Named("name") @NotSender other: Player, @Named("kit") @Optional kit: Kit?) {
+        if (!other.isOnline) {
             player.sendMessage(Component.text("Couldn't find this player!", RED))
             return
         }
-        if (player == target) {
+        if (player == other) {
             player.sendMessage(Component.text("You can't invite yourself to a Duel... are you okay?", RED))
             return
         }
 
-        profileRegistry.invites.put(Pair(player.uniqueId, target.uniqueId), kit ?: Kit.valueOf(config.defaultKit))
-
-        player.sendMessage(Component.text("You sent a Duel invite to ${target.name}.", GREEN))
-        target.sendMessage(
-            Component.newline()
-                .append(Component.text("${player.name} sent you a Duel invite.", GREEN))
-                .append(Component.newline())
-                .append(Component.text("[CLICK HERE TO ACCEPT]", YELLOW, TextDecoration.BOLD)
-                    .clickEvent(ClickEvent.runCommand("/accept ${player.name}"))
-                    .hoverEvent(HoverEvent.showText(Component.text("Click to accept the Duel invite.", GRAY))))
-                .append(Component.newline())
-        )
+        Duel(
+            playerOne = player.uniqueId,
+            playerTwo = other.uniqueId
+        ).sendInvite(kit ?: Kit.valueOf(config.defaultKit))
     }
 
     @Command("accept")
     @Cooldown(value = 1, unit = TimeUnit.MINUTES)
-    fun onAcceptDuel(player: Player, @Named("name") @NotSender target: Player) {
-        if (!target.isOnline) {
+    fun onAcceptDuel(player: Player, @Named("name") @NotSender other: Player) {
+        if (!other.isOnline) {
             player.sendMessage(Component.text("This player isn't online anymore!", RED))
             return
         }
-        if (!profileRegistry.invites.asMap().containsKey(Pair(target.uniqueId, player.uniqueId))) {
+        if (!Duels.invites.asMap().containsKey(Pair(other.uniqueId, player.uniqueId))) {
             player.sendMessage(Component.text("You don't have a Duel invite from this player!", RED))
         }
 
-        player.sendMessage(Component.text("You accepted the Duel invite.", GREEN))
-        target.sendMessage(Component.text("${player.name} has accepted the Duel invite.", GREEN))
-
-        player.teleport(config.firstPlayerLocation)
-        target.teleport(config.secondPlayerLocation)
-
-        player.gameMode = GameMode.SURVIVAL
-        target.gameMode = GameMode.SURVIVAL
-
-        val kit = profileRegistry.invites.asMap().getValue(Pair(target.uniqueId, player.uniqueId))
-
-        player.setKit(config, kit)
-        target.setKit(config, kit)
-
-        player.showTitle(Title.title(
-            Component.text("FIGHT!", RED, TextDecoration.BOLD), Component.empty(), Times.times(
-                Duration.ofSeconds(1), Duration.ofSeconds(3), Duration.ofSeconds(1)))
-        )
-
-        target.showTitle(Title.title(
-            Component.text("FIGHT!", RED, TextDecoration.BOLD), Component.empty(), Times.times(
-                Duration.ofSeconds(1), Duration.ofSeconds(3), Duration.ofSeconds(1)))
-        )
-
-        profileRegistry.invites.invalidate(Pair(target.uniqueId, player.uniqueId))
+        Duel(playerOne = other.uniqueId, playerTwo = player.uniqueId).apply {
+            acceptInvite(kit ?: Kit.valueOf(config.defaultKit), config)
+        }
     }
 }

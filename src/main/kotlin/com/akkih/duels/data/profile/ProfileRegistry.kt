@@ -1,24 +1,17 @@
 package com.akkih.duels.data.profile
 
-import com.akkih.duels.data.Database
-import com.akkih.duels.data.Kit
+import com.akkih.duels.Duels
 import com.akkih.duels.data.Config
-import com.google.common.cache.Cache
-import com.google.common.cache.CacheBuilder
 import com.mongodb.client.model.Filters.eq
+import gg.flyte.twilight.scheduler.repeat
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.*
-import gg.flyte.twilight.scheduler.repeat
 
-class ProfileRegistry(private val config: Config) {
+class ProfileRegistry(private val config: Config, private val duels: Duels) {
     private val profiles: MutableMap<UUID, Profile> = mutableMapOf()
-    val invites: Cache<Pair<UUID, UUID>, Kit> = CacheBuilder.newBuilder()
-        .expireAfterWrite(5, java.util.concurrent.TimeUnit.MINUTES)
-        .build()
-    private val collection = Database.PROFILES
 
     init {
         repeat(5, gg.flyte.twilight.time.TimeUnit.MINUTES, true) { saveAll() }
@@ -37,25 +30,33 @@ class ProfileRegistry(private val config: Config) {
     }
 
     fun handleJoin(player: Player): Profile {
+        player.walkSpeed = 0F
         player.teleport(config.lobbyLocation)
+        player.activePotionEffects.clear()
         player.inventory.clear()
 
-        return collection.find(eq("uuid", player.uniqueId.toString())).first()?.run {
-            Profile.from(player.uniqueId)
+        return duels.database.profiles.find(eq("uuid", player.uniqueId.toString())).first()?.run {
+            duels.database.from(player.uniqueId)
         } ?: create(player)
     }
 
     fun handleQuit(player: Player) {
         if (player.world == config.arenaWorld) config.arenaWorld.players.forEach {
-            it.sendMessage(Component.text("${player.name} has left the game, so you've been teleported to the lobby.", NamedTextColor.RED))
+            it.sendMessage(
+                Component.text(
+                    "${player.name} has left the game, so you've been teleported to the lobby.",
+                    NamedTextColor.RED
+                )
+            )
             it.teleport(config.lobbyLocation)
             it.inventory.clear()
         }
 
-        findByPlayer(player).apply {
-            save()
-            profiles.remove(player.uniqueId, this)
-        }
+        val profile = findByPlayer(player)
+
+        handleDeath(player)
+        profiles.remove(player.uniqueId, profile)
+        duels.database.save(profile)
     }
 
     fun handleKill(player: Player) {
@@ -67,31 +68,31 @@ class ProfileRegistry(private val config: Config) {
             kills += 1
             wins += 1
             winstreak += 1
-            save()
+            duels.database.save(this)
         }
     }
 
     fun handleDeath(player: Player) {
         player.inventory.clear()
-        player.sendMessage(Component.text("You've lost. :(", NamedTextColor.RED))
+        if (player.isOnline) player.sendMessage(Component.text("You've lost. :(", NamedTextColor.RED))
 
         findByPlayer(player).apply {
             losses += 1
             deaths += 1
             winstreak = 0
-            save()
+            duels.database.save(this)
         }
     }
 
     private fun create(player: Player): Profile {
-        val profile = Profile.from(player.uniqueId)
-        profile.save()
+        val profile = duels.database.from(player.uniqueId)
+        duels.database.save(profile)
         profiles[player.uniqueId] = profile
         return profile
     }
 
     fun saveAll() {
-        profiles.forEach { it.value.save() }
+        profiles.forEach { duels.database.save(it.value) }
         println("Saved ${profiles.size} profile(s).")
     }
 }
